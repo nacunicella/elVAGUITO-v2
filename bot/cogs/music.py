@@ -73,12 +73,12 @@ class Music(commands.Cog):
             except Exception as e:
                 return await interaction.followup.send(f"❌ Error de conexión: {e}")
 
-        # Esperar a que la conexión parcheada termine
-        await asyncio.sleep(1)
+        # Breve espera para que Discord registre el estado de voz (patch de Lavalink)
+        await asyncio.sleep(0.5)
 
         try:
-            # VOLVEMOS A YOUTUBE (Con el plugin 1.18.0 en Lavalink)
-            # YouTube es la fuente más estable para canciones completas.
+            # Buscar la pista en YouTube a través del nodo de Lavalink
+
             tracks = await wavelink.Playable.search(busqueda, source=wavelink.TrackSource.YouTube)
             
             if not tracks:
@@ -89,10 +89,15 @@ class Music(commands.Cog):
             await player.play(track)
             
             embed = discord.Embed(
-                title="🎶 Reproduciendo",
-                description=f"[{track.title}]({track.uri})",
+                title="🎶 Reproduciendo Ahora",
+                description=f"**[{track.title}]({track.uri})**\n👤 Autor: `{track.author}`",
                 color=0x2ecc71
             )
+            
+            # Si la pista tiene miniatura/carátula, la agregamos
+            if track.artwork:
+                embed.set_thumbnail(url=track.artwork)
+                
             await interaction.followup.send(embed=embed)
             
         except Exception as e:
