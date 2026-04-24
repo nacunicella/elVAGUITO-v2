@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import aiosqlite
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 def xp_to_level(xp): return int((xp / 100) ** 0.5)
 def level_to_xp(level): return (level ** 2) * 100
@@ -26,7 +26,7 @@ class Levels(commands.Cog):
             ) as cursor:
                 row = await cursor.fetchone()
 
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             
             if row:
                 xp, level, last_xp_str = row
@@ -96,7 +96,7 @@ class Levels(commands.Cog):
         description = ""
         for i, (user_id, level, xp) in enumerate(rows, 1):
             user = interaction.guild.get_member(int(user_id))
-            name = user.display_name if user else f"Usuario ID {user_id}"
+            name = user.display_name if user else "[Usuario Eliminado]"
             description += f"**{i}. {name}** - Nivel {level} ({xp} XP)\n"
         
         embed.description = description if description else "Nadie ha ganado XP todavía."

@@ -53,7 +53,11 @@ class MyBot(commands.Bot):
             try:
                 lava_host = os.getenv('LAVALINK_HOST', 'localhost')
                 lava_port = os.getenv('LAVALINK_PORT', '2333')
-                lava_pass = os.getenv('LAVALINK_PASSWORD', 'tupassword123')
+                lava_pass = os.getenv('LAVALINK_PASSWORD')
+                
+                if not lava_pass:
+                    print("❌ ERROR: No se encontró LAVALINK_PASSWORD. Configura la variable de entorno.")
+                    return
                 
                 uri = f"http://{lava_host}:{lava_port}"
                 
@@ -88,6 +92,16 @@ async def ping(interaction: discord.Interaction):
     """Comando slash básico de ping."""
     latency = round(bot.latency * 1000)
     await interaction.response.send_message(f"🏓 ¡Pong! Latencia: {latency}ms")
+
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    """Manejador global de errores para comandos slash."""
+    if isinstance(error, app_commands.MissingPermissions):
+        await interaction.response.send_message("❌ No tienes permisos suficientes para usar este comando.", ephemeral=True)
+    else:
+        print(f"Error no manejado en comando slash: {error}")
+        if not interaction.response.is_done():
+            await interaction.response.send_message("❌ Ocurrió un error inesperado al ejecutar el comando.", ephemeral=True)
 
 if __name__ == "__main__":
     if not TOKEN:

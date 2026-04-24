@@ -72,6 +72,10 @@ class Music(commands.Cog):
 
         player: wavelink.Player = interaction.guild.voice_client
         
+        # Verificar si el bot ya está en otro canal
+        if player and player.channel != interaction.user.voice.channel:
+            return await interaction.followup.send("❌ Ya estoy en otro canal de voz. Únete a mi canal para pedir música.", ephemeral=True)
+
         if not player:
             try:
                 player = await interaction.user.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
@@ -108,15 +112,39 @@ class Music(commands.Cog):
         except Exception as e:
             await interaction.followup.send(f"❌ Error al reproducir: {e}")
 
-    @app_commands.command(name="stop", description="Detiene el bot")
+    @app_commands.command(name="stop", description="Detiene la música y desconecta al bot")
     async def stop(self, interaction: discord.Interaction):
         player: wavelink.Player = interaction.guild.voice_client
         if player:
             await player.stop()
             await player.disconnect()
-            await interaction.response.send_message("👋 Desconectado y música detenida.")
+            await interaction.response.send_message("⏹️ Música detenida y bot desconectado.")
         else:
-            await interaction.response.send_message("❌ No estoy conectado a ningún canal de voz.", ephemeral=True)
+            await interaction.response.send_message("❌ No hay música reproduciéndose.", ephemeral=True)
+
+    @app_commands.command(name="pause", description="Pausa la música actual")
+    async def pause(self, interaction: discord.Interaction):
+        player: wavelink.Player = interaction.guild.voice_client
+        if not player:
+            return await interaction.response.send_message("❌ No hay música reproduciéndose.", ephemeral=True)
+        
+        if player.paused:
+            return await interaction.response.send_message("⚠️ La música ya está pausada.", ephemeral=True)
+        
+        await player.pause(True)
+        await interaction.response.send_message("⏸️ Música pausada.")
+
+    @app_commands.command(name="resume", description="Reanuda la música pausada")
+    async def resume(self, interaction: discord.Interaction):
+        player: wavelink.Player = interaction.guild.voice_client
+        if not player:
+            return await interaction.response.send_message("❌ No hay música reproduciéndose.", ephemeral=True)
+        
+        if not player.paused:
+            return await interaction.response.send_message("⚠️ La música no está pausada.", ephemeral=True)
+        
+        await player.pause(False)
+        await interaction.response.send_message("▶️ Música reanudada.")
 
 async def setup(bot):
     await bot.add_cog(Music(bot))

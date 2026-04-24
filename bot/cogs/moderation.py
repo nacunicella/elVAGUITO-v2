@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import aiosqlite
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -27,7 +27,7 @@ class Moderation(commands.Cog):
         """Enviar log al canal 'logs-moderación' si existe."""
         channel = discord.utils.get(guild.text_channels, name="logs-moderación")
         if channel:
-            embed = discord.Embed(title=f"Log: {action}", color=0xff4757, timestamp=datetime.utcnow())
+            embed = discord.Embed(title=f"Log: {action}", color=0xff4757, timestamp=datetime.now(timezone.utc))
             embed.add_field(name="Usuario afectado", value=f"{target} ({target.id})", inline=False)
             embed.add_field(name="Moderador", value=f"{moderator} ({moderator.id})", inline=False)
             embed.add_field(name="Razón", value=reason, inline=False)
@@ -89,7 +89,7 @@ class Moderation(commands.Cog):
             # Guardar la advertencia
             await db.execute(
                 "INSERT INTO warnings (user_id, guild_id, reason, timestamp) VALUES (?, ?, ?, ?)",
-                (str(usuario.id), str(interaction.guild.id), razon, datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))
+                (str(usuario.id), str(interaction.guild.id), razon, datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"))
             )
             await db.commit()
 
@@ -118,6 +118,7 @@ class Moderation(commands.Cog):
                 print(f"Error al auto-kickear usuario (posible falta de permisos): {e}")
 
     @app_commands.command(name="warns", description="Ver el historial de advertencias de un usuario")
+    @app_commands.checks.has_permissions(kick_members=True)
     async def warns(self, interaction: discord.Interaction, usuario: discord.Member):
         """Mostrar lista de advertencias."""
         async with aiosqlite.connect(self.db_name) as db:
