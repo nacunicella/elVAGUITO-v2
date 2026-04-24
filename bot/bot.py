@@ -43,20 +43,22 @@ class MyBot(commands.Bot):
     async def on_ready(self):
         # Conectar a Lavalink usando variables de entorno para Railway
         if not hasattr(self, "wavelink_connected"):
-            try:
-                # En local usará localhost, en Railway usará lo que le digamos
-                lava_host = os.getenv('LAVALINK_HOST', 'localhost')
-                lava_port = os.getenv('LAVALINK_PORT', '2333')
-                lava_pass = os.getenv('LAVALINK_PASSWORD', 'tupassword123')
-                
-                uri = f"http://{lava_host}:{lava_port}"
-                
-                nodes = [wavelink.Node(uri=uri, password=lava_pass)]
-                await wavelink.Pool.connect(nodes=nodes, client=self)
-                self.wavelink_connected = True
-                print(f"Lavalink conectado correctamente en {uri}")
-            except Exception as e:
-                print(f"Error al conectar Lavalink en on_ready: {e}")
+            print("Intentando conectar con Lavalink...")
+            while not hasattr(self, "wavelink_connected"):
+                try:
+                    lava_host = os.getenv('LAVALINK_HOST', 'localhost')
+                    lava_port = os.getenv('LAVALINK_PORT', '2333')
+                    lava_pass = os.getenv('LAVALINK_PASSWORD', 'tupassword123')
+                    
+                    uri = f"http://{lava_host}:{lava_port}"
+                    
+                    nodes = [wavelink.Node(uri=uri, password=lava_pass)]
+                    await wavelink.Pool.connect(nodes=nodes, client=self)
+                    self.wavelink_connected = True
+                    print(f"✅ Lavalink conectado en {uri}")
+                except Exception as e:
+                    print(f"❌ Reintentando conexión con Lavalink en 5s... ({e})")
+                    await asyncio.sleep(5)
         
         # Sincronizar comandos globalmente
         if not self.synced:
