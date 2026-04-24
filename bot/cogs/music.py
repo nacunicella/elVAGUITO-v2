@@ -74,7 +74,7 @@ class Music(commands.Cog):
                 return await interaction.followup.send(f"❌ Error de conexión: {e}")
 
         # Breve espera para que Discord registre el estado de voz (patch de Lavalink)
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
 
         try:
             # Buscar la pista en YouTube a través del nodo de Lavalink
