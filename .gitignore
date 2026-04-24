@@ -1,0 +1,18 @@
+# Privacidad
+.env
+*.db
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Lavalink (No subir archivos pesados si no es necesario, pero subiremos el jar para Railway)
+# lavalink/Lavalink.jar # Descomenta esto si prefieres que Railway lo descargue (aunque es mejor tenerlo)
+
+# OS
+.DS_Store
+Thumbs.db
