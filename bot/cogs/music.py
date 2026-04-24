@@ -111,6 +111,8 @@ class Music(commands.Cog):
             await player.stop()
             await player.disconnect()
             await interaction.response.send_message("👋 Desconectado y música detenida.")
+        else:
+            await interaction.response.send_message("❌ No estoy conectado a ningún canal de voz.", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(Music(bot))

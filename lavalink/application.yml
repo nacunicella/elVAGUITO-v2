@@ -6,7 +6,7 @@ lavalink:
   plugins:
     - dependency: "dev.lavalink.youtube:youtube-plugin:1.18.0"
   server:
-    password: "${LAVALINK_PASSWORD:tupassword123}"
+    password: "${LAVALINK_PASSWORD}"
     sources:
       youtube: false
       soundcloud: true
