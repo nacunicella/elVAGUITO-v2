@@ -28,6 +28,8 @@ plugins:
       - WEB
     oauth:
       enabled: true
+      refreshToken: "${YOUTUBE_REFRESH_TOKEN:}"
+      skipInitialization: true
 
 logging:
   level:
