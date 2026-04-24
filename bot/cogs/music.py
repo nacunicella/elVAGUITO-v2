@@ -49,15 +49,19 @@ class Music(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload):
-        print(f"Empezo a sonar la pista: {payload.track.title}")
+        print(f"✅ Sonando: {payload.track.title}")
+
+    @commands.Cog.listener()
+    async def on_wavelink_track_end(self, payload: wavelink.TrackEndEventPayload):
+        print(f"ℹ️ La pista terminó: {payload.track.title} (Razón: {payload.reason})")
 
     @commands.Cog.listener()
     async def on_wavelink_track_exception(self, payload: wavelink.TrackExceptionEventPayload):
-        print(f"Error en Lavalink al reproducir la pista: {payload.exception}")
+        print(f"❌ ERROR en Lavalink: {payload.exception}")
 
     @commands.Cog.listener()
     async def on_wavelink_track_stuck(self, payload: wavelink.TrackStuckEventPayload):
-        print(f"La pista se ha quedado atascada: {payload.track.title}")
+        print(f"⚠️ Pista atascada: {payload.track.title}")
 
     @app_commands.command(name="play", description="Reproduce música")
     async def play(self, interaction: discord.Interaction, busqueda: str):
