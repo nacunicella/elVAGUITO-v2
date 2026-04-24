@@ -13,8 +13,10 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 class MyBot(commands.Bot):
     def __init__(self):
-        # Configurar intents: Necesarios para bienvenida (members) y XP (messages)
-        intents = discord.Intents.all()
+        # Configurar intents mínimos necesarios (seguridad)
+        intents = discord.Intents.default()
+        intents.members = True          # Para mensajes de bienvenida
+        intents.message_content = True  # Para el sistema de niveles (XP)
         super().__init__(command_prefix="!", intents=intents)
         self.synced = False
 
@@ -41,26 +43,29 @@ class MyBot(commands.Bot):
         await self.load_extension("cogs.music")
         print("Extensiones cargadas correctamente.")
 
+        # Iniciar conexión a Lavalink en background de forma segura
+        self.wavelink_task = asyncio.create_task(self._connect_lavalink())
+
+    async def _connect_lavalink(self):
+        """Maneja la conexión a Lavalink de forma segura con reintentos."""
+        print("Intentando conectar con Lavalink...")
+        while not hasattr(self, "wavelink_connected"):
+            try:
+                lava_host = os.getenv('LAVALINK_HOST', 'localhost')
+                lava_port = os.getenv('LAVALINK_PORT', '2333')
+                lava_pass = os.getenv('LAVALINK_PASSWORD', 'tupassword123')
+                
+                uri = f"http://{lava_host}:{lava_port}"
+                
+                nodes = [wavelink.Node(uri=uri, password=lava_pass)]
+                await wavelink.Pool.connect(nodes=nodes, client=self)
+                self.wavelink_connected = True
+                print(f"✅ Lavalink conectado en {uri}")
+            except Exception as e:
+                print(f"❌ Reintentando conexión con Lavalink en 5s... ({e})")
+                await asyncio.sleep(5)
+
     async def on_ready(self):
-        # Conectar a Lavalink usando variables de entorno para Railway
-        if not hasattr(self, "wavelink_connected"):
-            print("Intentando conectar con Lavalink...")
-            while not hasattr(self, "wavelink_connected"):
-                try:
-                    lava_host = os.getenv('LAVALINK_HOST', 'localhost')
-                    lava_port = os.getenv('LAVALINK_PORT', '2333')
-                    lava_pass = os.getenv('LAVALINK_PASSWORD', 'tupassword123')
-                    
-                    uri = f"http://{lava_host}:{lava_port}"
-                    
-                    nodes = [wavelink.Node(uri=uri, password=lava_pass)]
-                    await wavelink.Pool.connect(nodes=nodes, client=self)
-                    self.wavelink_connected = True
-                    print(f"✅ Lavalink conectado en {uri}")
-                except Exception as e:
-                    print(f"❌ Reintentando conexión con Lavalink en 5s... ({e})")
-                    await asyncio.sleep(5)
-        
         # Sincronizar comandos globalmente
         if not self.synced:
             try:

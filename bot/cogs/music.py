@@ -8,7 +8,8 @@ import logging
 
 # MONKEY PATCH: Solución definitiva al error 'channelId is required' en Lavalink 4.2+
 # Wavelink 3.4.1 tiene un bug donde no envía el 'channelId' en el objeto 'voice'
-# provocando que Lavalink cancele la conexión inmediatamente.
+# TODO: Eliminar este monkey-patch cuando se actualice a una versión de Wavelink 
+# que solucione el bug de envío de 'channelId' requerido por Lavalink 4.2+
 original_dispatch = wavelink.Player._dispatch_voice_update
 
 async def patched_dispatch_voice_update(self):
@@ -107,8 +108,9 @@ class Music(commands.Cog):
     async def stop(self, interaction: discord.Interaction):
         player: wavelink.Player = interaction.guild.voice_client
         if player:
+            await player.stop()
             await player.disconnect()
-            await interaction.response.send_message("👋 Desconectado.")
+            await interaction.response.send_message("👋 Desconectado y música detenida.")
 
 async def setup(bot):
     await bot.add_cog(Music(bot))

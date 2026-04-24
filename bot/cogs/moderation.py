@@ -65,6 +65,22 @@ class Moderation(commands.Cog):
         except Exception as e:
             await interaction.response.send_message(f"Error al intentar banear: {e}", ephemeral=True)
 
+    @app_commands.command(name="unban", description="Desbanea a un usuario (por su ID)")
+    @app_commands.checks.has_permissions(ban_members=True)
+    async def unban(self, interaction: discord.Interaction, user_id: str, razon: str = "No especificada"):
+        """Desbanear a un usuario usando su ID."""
+        try:
+            user = await self.bot.fetch_user(int(user_id))
+            await interaction.guild.unban(user, reason=razon)
+            embed = discord.Embed(title="Usuario Desbaneado", description=f"**{user}** ha sido desbaneado.", color=0x2ecc71)
+            embed.add_field(name="Razón", value=razon)
+            await interaction.response.send_message(embed=embed)
+            await self.log_action(interaction.guild, "UNBAN", interaction.user, user, razon)
+        except discord.NotFound:
+            await interaction.response.send_message("❌ Usuario no encontrado o no está baneado.", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error al intentar desbanear: {e}", ephemeral=True)
+
     @app_commands.command(name="warn", description="Añade una advertencia a un usuario")
     @app_commands.checks.has_permissions(kick_members=True)
     async def warn(self, interaction: discord.Interaction, usuario: discord.Member, razon: str):
@@ -98,8 +114,8 @@ class Moderation(commands.Cog):
                 await usuario.kick(reason="Acumulación de 3 advertencias")
                 await self.log_action(interaction.guild, "AUTO-KICK (3 WARNS)", self.bot.user, usuario, "3 Advertencias acumuladas")
                 await interaction.channel.send(f"⚠️ **{usuario}** ha sido expulsado automáticamente por acumular 3 advertencias.")
-            except:
-                pass
+            except Exception as e:
+                print(f"Error al auto-kickear usuario (posible falta de permisos): {e}")
 
     @app_commands.command(name="warns", description="Ver el historial de advertencias de un usuario")
     async def warns(self, interaction: discord.Interaction, usuario: discord.Member):

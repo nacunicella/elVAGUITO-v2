@@ -4,6 +4,9 @@ from discord import app_commands
 import aiosqlite
 from datetime import datetime, timedelta
 
+def xp_to_level(xp): return int((xp / 100) ** 0.5)
+def level_to_xp(level): return (level ** 2) * 100
+
 class Levels(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -34,8 +37,7 @@ class Levels(commands.Cog):
                     return
 
                 new_xp = xp + 15
-                # Fórmula de nivel: nivel = int((xp / 100) ** 0.5)
-                new_level = int((new_xp / 100) ** 0.5)
+                new_level = xp_to_level(new_xp)
                 
                 await db.execute(
                     "UPDATE users SET xp = ?, level = ?, last_xp = ? WHERE user_id = ? AND guild_id = ?",
@@ -69,7 +71,7 @@ class Levels(commands.Cog):
             return
 
         xp, level = row
-        next_level_xp = ((level + 1) ** 2) * 100
+        next_level_xp = level_to_xp(level + 1)
         
         embed = discord.Embed(title=f"Rango de {interaction.user.display_name}", color=0x3498db)
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
