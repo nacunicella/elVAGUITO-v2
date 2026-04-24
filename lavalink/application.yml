@@ -5,18 +5,6 @@ server:
 lavalink:
   plugins:
     - dependency: "dev.lavalink.youtube:youtube-plugin:1.18.0"
-  
-  youtube:
-    enabled: true
-    allowSearch: true
-    allowDirectVideoIds: true
-    allowDirectPlaylistIds: true
-    clients:
-      - TVHTML5
-      - ANDROID_VR
-      - WEB
-      - WEB_REMIX
-      
   server:
     password: "tupassword123"
     sources:
@@ -27,6 +15,19 @@ lavalink:
     playerUpdateInterval: 5
     youtubeSearchEnabled: true
     soundcloudSearchEnabled: true
+
+plugins:
+  youtube:
+    enabled: true
+    allowSearch: true
+    allowDirectVideoIds: true
+    allowDirectPlaylistIds: true
+    clients:
+      - TVHTML5
+      - ANDROID_VR
+      - WEB
+    oauth:
+      enabled: true
 
 logging:
   level:
