@@ -5,18 +5,18 @@ server:
 lavalink:
   plugins:
     - dependency: "dev.lavalink.youtube:youtube-plugin:1.18.0"
-    
-plugins:
+  
   youtube:
     enabled: true
     allowSearch: true
     allowDirectVideoIds: true
     allowDirectPlaylistIds: true
     clients:
-      - TVHTML5EMBEDDED
+      - TVHTML5
       - ANDROID_VR
       - WEB
       - WEB_REMIX
+      
   server:
     password: "tupassword123"
     sources:
